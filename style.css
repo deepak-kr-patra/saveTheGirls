@@ -9,13 +9,13 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #f2f2f2;
+    /* background: #f2f2f2; */
 }
 
 #girl,
 #thief,
 #thief2,
-#hammer {
+#bat {
     position: absolute;
     height: 100px;
 }
@@ -31,13 +31,32 @@ body {
 }
 
 #thief2 {
-  left: 0px;
-  top: 400px;
-  height: 100px;
+    left: 0px;
+    top: 400px;
+    height: 100px;
+    z-index: -1;
 }
 
-#hammer {
+#bat {
     left: 100px;
     top: 450px;
     cursor: grab;
+}
+
+.bat-swing {
+    animation: swing 0.2s ease;
+}
+
+@keyframes swing {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    50% {
+        transform: rotate(-45deg);
+    }
+
+    100% {
+        transform: rotate(0deg);
+    }
 }

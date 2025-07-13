@@ -1,14 +1,14 @@
 const girl = document.getElementById("girl");
 const thief1 = document.getElementById("thief");
 const thief2 = document.getElementById("thief2");
-const hammer = document.getElementById("hammer");
+const bat = document.getElementById("bat");
 
 let girlX = 500;
 let thief1X = 1000; // from right → left
 let thief2X = 0;    // from left → right
 
-let hammerX = 100;
-let hammerY = 450;
+let batX = 100;
+let batY = 450;
 
 let thief1Hit = false;
 let thief2Hit = false;
@@ -30,9 +30,9 @@ function shrinkRect(rect, paddingXPercent = 0.35, paddingYPercent = 0.0) {
     };
 }
 
-function isColliding(r1, r2, paddingX = 0.0) {
-    const a = shrinkRect(r1);
-    const b = shrinkRect(r2, paddingX);
+function isColliding(r1, r2, r1PaddingX = 0.0, r2PaddingX = 0.0) {
+    const a = shrinkRect(r1, r1PaddingX);
+    const b = shrinkRect(r2, r2PaddingX);
     return !(
         a.right < b.left ||
         a.left > b.right ||
@@ -47,6 +47,7 @@ function updatePositions() {
     girlX -= GIRL_SPEED;
     girl.style.left = girlX + "px";
 
+    // Move thief 1 (leftward) if not hit
     if (!thief1Hit) {
         thief1X -= THIEF1_SPEED;
         thief1.style.left = thief1X + "px";
@@ -62,18 +63,17 @@ function updatePositions() {
     const thief1Rect = thief1.getBoundingClientRect();
     const thief2Rect = thief2.getBoundingClientRect();
 
-    if (!thief1Hit && isColliding(girlRect, thief1Rect, 0.2)) {
+    if (!thief1Hit && isColliding(girlRect, thief1Rect, 0.35, 0.2)) {
         endGame("Thief 1 caught the girl!");
         girl.src = "./assets/girlStandingLeft.png";
         thief1.src = "./assets/thiefStandingLeft.png";
-        gameOver = true;
         return;
     }
 
-    if (!thief2Hit && isColliding(girlRect, thief2Rect, 0.2)) {
+    if (!thief2Hit && isColliding(girlRect, thief2Rect, 0.35, 0.45)) {
         endGame("Thief 2 caught the girl!");
         girl.src = "./assets/girlStandingLeft.png";
-        thief2.src = "./assets/thiefStandingLeft.png";
+        thief2.src = "./assets/thiefStandingRight.png";
         return;
     }
 
@@ -96,42 +96,98 @@ document.addEventListener("keydown", (e) => {
     const step = 30;
     switch (e.key) {
         case "ArrowUp":
-            hammerY -= step;
+            batY -= step;
             break;
         case "ArrowDown":
-            hammerY += step;
+            batY += step;
             break;
         case "ArrowLeft":
-            hammerX -= step;
+            batX -= step;
             break;
         case "ArrowRight":
-            hammerX += step;
+            batX += step;
             break;
     }
 
-    hammerX = clamp(hammerX, 0, window.innerWidth - hammer.width);
-    hammerY = clamp(hammerY, 0, window.innerHeight - hammer.height);
+    batX = clamp(batX, 0, window.innerWidth - bat.getBoundingClientRect().width);
+    batY = clamp(batY, 0, window.innerHeight - bat.getBoundingClientRect().height);
 
-    hammer.style.left = hammerX + "px";
-    hammer.style.top = hammerY + "px";
+    bat.style.left = batX + "px";
+    bat.style.top = batY + "px";
 
-    const hammerRect = hammer.getBoundingClientRect();
-    const t1Rect = thief1.getBoundingClientRect();
-    const t2Rect = thief2.getBoundingClientRect();
+    const batRect = bat.getBoundingClientRect();
+    const thief1Rect = thief1.getBoundingClientRect();
+    const thief2Rect = thief2.getBoundingClientRect();
 
-    if (!thief1Hit && isColliding(hammerRect, t1Rect)) {
+    if (!thief1Hit && isColliding(batRect, thief1Rect, 0.45, 0.2)) {
         console.log("You hit thief 1!");
-        thief1.src = "./assets/thiefStandingLeft.png";
+        thief1.style.transition = "opacity 0.3s ease";
+        thief1.style.opacity = "0";
+        setTimeout(() => {
+            thief1.style.display = "none";
+        }, 300);
         thief1Hit = true;
+        // bat.classList.add("bat-swing");
+        // setTimeout(() => bat.classList.remove("bat-swing"), 200);
     }
 
-    if (!thief2Hit && isColliding(hammerRect, t2Rect)) {
+    if (!thief2Hit && isColliding(batRect, thief2Rect, 0.45, 0.45)) {
         console.log("You hit thief 2!");
-        thief2.src = "./assets/thiefStandingLeft.png";
+        thief2.style.transition = "opacity 0.3s ease";
+        thief2.style.opacity = "0";
+        setTimeout(() => {
+            thief2.style.display = "none";
+        }, 300);
         thief2Hit = true;
     }
 
-    // Optional: Win condition
+    if (thief1Hit && thief2Hit) {
+        showMessage("You saved the girl!", "green");
+        gameOver = true;
+    }
+});
+
+document.addEventListener("mousemove", (e) => {
+    if (gameOver) return;
+
+    // Adjust to center the bat on the cursor
+    const batRect = bat.getBoundingClientRect();
+    batX = e.clientX - batRect.width / 2;
+    batY = e.clientY - batRect.height / 2;
+
+    // Keep bat within screen bounds
+    batX = clamp(batX, 0, window.innerWidth - batRect.width);
+    batY = clamp(batY, 0, window.innerHeight - batRect.height);
+
+    // Update bat position
+    bat.style.left = batX + "px";
+    bat.style.top = batY + "px";
+
+    // Check for collision with thieves
+    const batRectUpdated = bat.getBoundingClientRect();
+    const thief1Rect = thief1.getBoundingClientRect();
+    const thief2Rect = thief2.getBoundingClientRect();
+
+    if (!thief1Hit && isColliding(batRectUpdated, thief1Rect, 0.45, 0.2)) {
+        console.log("You hit thief 1!");
+        thief1.style.transition = "opacity 0.3s ease";
+        thief1.style.opacity = "0";
+        setTimeout(() => {
+            thief1.style.display = "none";
+        }, 300);
+        thief1Hit = true;
+    }
+
+    if (!thief2Hit && isColliding(batRectUpdated, thief2Rect, 0.45, 0.45)) {
+        console.log("You hit thief 2!");
+        thief2.style.transition = "opacity 0.3s ease";
+        thief2.style.opacity = "0";
+        setTimeout(() => {
+            thief2.style.display = "none";
+        }, 300);
+        thief2Hit = true;
+    }
+
     if (thief1Hit && thief2Hit) {
         showMessage("You saved the girl!", "green");
         gameOver = true;
@@ -140,7 +196,7 @@ document.addEventListener("keydown", (e) => {
 
 updatePositions();
 
-// messagewa
+// message
 function showMessage(text, color = "red") {
     const msg = document.createElement("div");
     msg.innerText = text;
@@ -155,3 +211,9 @@ function showMessage(text, color = "red") {
     msg.style.borderRadius = "10px";
     document.body.appendChild(msg);
 }
+
+document.addEventListener("keydown", (e) => {
+    if (gameOver && e.key.toLowerCase() === 'r') {
+        location.reload();
+    }
+});
