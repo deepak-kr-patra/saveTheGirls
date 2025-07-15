@@ -3,9 +3,11 @@ const thief1 = document.getElementById("thief");
 const thief2 = document.getElementById("thief2");
 const bat = document.getElementById("bat");
 
+const gameOverModal = document.getElementById('gameOverModal');
+
 let girlX = 500;
-let thief1X = 1000; // from right → left
-let thief2X = 0;    // from left → right
+let thief1X = 1000; // from right to left
+let thief2X = 0;    // from left to right
 
 let batX = 100;
 let batY = 450;
@@ -83,11 +85,22 @@ function updatePositions() {
 function endGame(message) {
     console.log(message);
     gameOver = true;
-    showMessage(message);
+    gameOverModal.textContent = message;
+    gameOverModal.style.transform = "scale(1)";
 }
 
 function clamp(val, min, max) {
     return Math.max(min, Math.min(max, val));
+}
+
+function hitThief(thief) {
+    thief.src = "./assets/explosion.png";
+    thief.style.transition = "opacity 0.3s ease";
+    thief.style.opacity = "0";
+    setTimeout(() => {
+        thief.style.display = "none";
+    }, 300);
+    return true;
 }
 
 document.addEventListener("keydown", (e) => {
@@ -121,29 +134,16 @@ document.addEventListener("keydown", (e) => {
 
     if (!thief1Hit && isColliding(batRect, thief1Rect, 0.45, 0.2)) {
         console.log("You hit thief 1!");
-        thief1.style.transition = "opacity 0.3s ease";
-        thief1.style.opacity = "0";
-        setTimeout(() => {
-            thief1.style.display = "none";
-        }, 300);
-        thief1Hit = true;
-        // bat.classList.add("bat-swing");
-        // setTimeout(() => bat.classList.remove("bat-swing"), 200);
+        thief1Hit = hitThief(thief1);
     }
 
     if (!thief2Hit && isColliding(batRect, thief2Rect, 0.45, 0.45)) {
         console.log("You hit thief 2!");
-        thief2.style.transition = "opacity 0.3s ease";
-        thief2.style.opacity = "0";
-        setTimeout(() => {
-            thief2.style.display = "none";
-        }, 300);
-        thief2Hit = true;
+        thief2Hit = hitThief(thief2);
     }
 
     if (thief1Hit && thief2Hit) {
-        showMessage("You saved the girl!", "green");
-        gameOver = true;
+        endGame("You saved the girl!");
     }
 });
 
@@ -170,50 +170,24 @@ document.addEventListener("mousemove", (e) => {
 
     if (!thief1Hit && isColliding(batRectUpdated, thief1Rect, 0.45, 0.2)) {
         console.log("You hit thief 1!");
-        thief1.style.transition = "opacity 0.3s ease";
-        thief1.style.opacity = "0";
-        setTimeout(() => {
-            thief1.style.display = "none";
-        }, 300);
-        thief1Hit = true;
+        thief1Hit = hitThief(thief1);
     }
 
     if (!thief2Hit && isColliding(batRectUpdated, thief2Rect, 0.45, 0.45)) {
         console.log("You hit thief 2!");
-        thief2.style.transition = "opacity 0.3s ease";
-        thief2.style.opacity = "0";
-        setTimeout(() => {
-            thief2.style.display = "none";
-        }, 300);
-        thief2Hit = true;
+        thief2Hit = hitThief(thief2);
     }
 
     if (thief1Hit && thief2Hit) {
-        showMessage("You saved the girl!", "green");
-        gameOver = true;
+        endGame("You saved the girl!");
+    }
+});
+
+document.addEventListener("keydown", (e) => {
+    if (gameOver && e.key.toLowerCase() === 'r') {
+        gameOverModal.style.transform = "scale(0)";
+        location.reload();
     }
 });
 
 updatePositions();
-
-// message
-function showMessage(text, color = "red") {
-    const msg = document.createElement("div");
-    msg.innerText = text;
-    msg.style.position = "fixed";
-    msg.style.top = "50%";
-    msg.style.left = "50%";
-    msg.style.transform = "translate(-50%, -50%)";
-    msg.style.background = color;
-    msg.style.color = "white";
-    msg.style.fontSize = "2rem";
-    msg.style.padding = "20px";
-    msg.style.borderRadius = "10px";
-    document.body.appendChild(msg);
-}
-
-document.addEventListener("keydown", (e) => {
-    if (gameOver && e.key.toLowerCase() === 'r') {
-        location.reload();
-    }
-});
