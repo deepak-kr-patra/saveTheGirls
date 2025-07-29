@@ -1,7 +1,7 @@
 const girl = document.getElementById("girl");
 const thief1 = document.getElementById("thief");
 const thief2 = document.getElementById("thief2");
-const bat = document.getElementById("bat");
+const glove = document.getElementById("glove");
 
 const gameOverModal = document.getElementById('gameOverModal');
 
@@ -9,8 +9,8 @@ let girlX = 500;
 let thief1X = 1000; // from right to left
 let thief2X = 0;    // from left to right
 
-let batX = 100;
-let batY = 450;
+let gloveX = 100;
+let gloveY = 450;
 
 let thief1Hit = false;
 let thief2Hit = false;
@@ -109,35 +109,35 @@ document.addEventListener("keydown", (e) => {
     const step = 30;
     switch (e.key) {
         case "ArrowUp":
-            batY -= step;
+            gloveY -= step;
             break;
         case "ArrowDown":
-            batY += step;
+            gloveY += step;
             break;
         case "ArrowLeft":
-            batX -= step;
+            gloveX -= step;
             break;
         case "ArrowRight":
-            batX += step;
+            gloveX += step;
             break;
     }
 
-    batX = clamp(batX, 0, window.innerWidth - bat.getBoundingClientRect().width);
-    batY = clamp(batY, 0, window.innerHeight - bat.getBoundingClientRect().height);
+    gloveX = clamp(gloveX, 0, window.innerWidth - glove.getBoundingClientRect().width);
+    gloveY = clamp(gloveY, 0, window.innerHeight - glove.getBoundingClientRect().height);
 
-    bat.style.left = batX + "px";
-    bat.style.top = batY + "px";
+    glove.style.left = gloveX + "px";
+    glove.style.top = gloveY + "px";
 
-    const batRect = bat.getBoundingClientRect();
+    const gloveRect = glove.getBoundingClientRect();
     const thief1Rect = thief1.getBoundingClientRect();
     const thief2Rect = thief2.getBoundingClientRect();
 
-    if (!thief1Hit && isColliding(batRect, thief1Rect, 0.45, 0.2)) {
+    if (!thief1Hit && isColliding(gloveRect, thief1Rect, 0.05, 0.2)) {
         console.log("You hit thief 1!");
         thief1Hit = hitThief(thief1);
     }
 
-    if (!thief2Hit && isColliding(batRect, thief2Rect, 0.45, 0.45)) {
+    if (!thief2Hit && isColliding(gloveRect, thief2Rect, 0.05, 0.45)) {
         console.log("You hit thief 2!");
         thief2Hit = hitThief(thief2);
     }
@@ -150,30 +150,30 @@ document.addEventListener("keydown", (e) => {
 document.addEventListener("mousemove", (e) => {
     if (gameOver) return;
 
-    // Adjust to center the bat on the cursor
-    const batRect = bat.getBoundingClientRect();
-    batX = e.clientX - batRect.width / 2;
-    batY = e.clientY - batRect.height / 2;
+    // Adjust to center the glove on the cursor
+    const gloveRect = glove.getBoundingClientRect();
+    gloveX = e.clientX - gloveRect.width / 2;
+    gloveY = e.clientY - gloveRect.height / 2;
 
-    // Keep bat within screen bounds
-    batX = clamp(batX, 0, window.innerWidth - batRect.width);
-    batY = clamp(batY, 0, window.innerHeight - batRect.height);
+    // Keep glove within screen bounds
+    gloveX = clamp(gloveX, 0, window.innerWidth - gloveRect.width);
+    gloveY = clamp(gloveY, 0, window.innerHeight - gloveRect.height);
 
-    // Update bat position
-    bat.style.left = batX + "px";
-    bat.style.top = batY + "px";
+    // Update glove position
+    glove.style.left = gloveX + "px";
+    glove.style.top = gloveY + "px";
 
     // Check for collision with thieves
-    const batRectUpdated = bat.getBoundingClientRect();
+    const gloveRectUpdated = glove.getBoundingClientRect();
     const thief1Rect = thief1.getBoundingClientRect();
     const thief2Rect = thief2.getBoundingClientRect();
 
-    if (!thief1Hit && isColliding(batRectUpdated, thief1Rect, 0.45, 0.2)) {
+    if (!thief1Hit && isColliding(gloveRectUpdated, thief1Rect, 0.05, 0.2)) {
         console.log("You hit thief 1!");
         thief1Hit = hitThief(thief1);
     }
 
-    if (!thief2Hit && isColliding(batRectUpdated, thief2Rect, 0.45, 0.45)) {
+    if (!thief2Hit && isColliding(gloveRectUpdated, thief2Rect, 0.05, 0.45)) {
         console.log("You hit thief 2!");
         thief2Hit = hitThief(thief2);
     }
