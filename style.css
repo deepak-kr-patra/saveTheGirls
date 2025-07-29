@@ -15,7 +15,7 @@ body {
 #girl,
 #thief,
 #thief2,
-#bat {
+#glove {
     position: absolute;
     height: 100px;
 }
@@ -37,7 +37,7 @@ body {
     z-index: -1;
 }
 
-#bat {
+#glove {
     left: 100px;
     top: 450px;
     cursor: grab;
